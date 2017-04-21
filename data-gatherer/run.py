@@ -90,5 +90,5 @@ while True:
     if active_threads > (len(chunks_of_cod_linhas) + 10):
         sys.exit("Thread limit exceeded: " + str(active_threads))
 
-    print("Sleep main thread for 60 seconds...")
+    print("Sleep main thread for 120 seconds...")
     time.sleep(120)
