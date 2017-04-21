@@ -88,7 +88,7 @@ while True:
     print("There are " + str(active_threads) + " threads running.")
     # Ten rogue threads must trigger a full stop to prevent service overload
     if active_threads > (len(chunks_of_cod_linhas) + 10):
-        sys.exit("Thread limit exceeded: " + str(active_threads))
+        sys.exit("Thread limit of " + str(len(chunks_of_cod_linhas) + 10) + " exceeded: " + str(active_threads))
 
     print("Sleep main thread for 120 seconds...")
     time.sleep(120)
