@@ -2,8 +2,9 @@
 import requests
 import csv
 import os
-import schedule
 import time
+import threading
+import sys
 
 url = 'http://api.olhovivo.sptrans.com.br/v0'
 s = requests.session()
@@ -31,32 +32,63 @@ def get_posicao(cod_linha):
         return ''
 
 
-def get_data():
-    print("Getting data...")
-    renew_token()
+def get_data(cod_linhas):
+    print("Getting data on thread " + str(threading.currentThread().threadID))
     for linha in cod_linhas:
         with open('/data/' + str(linha) + '-' + str(time.time()) + '.json', 'w') as f:
             f.write(get_posicao(linha))
+    print("Finished getting data on thread " + str(threading.currentThread().threadID))
+
+
+def chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
+
+# Prepare the threading system
+class myThread (threading.Thread):
+    def __init__(self, cod_linhas, threadID):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.cod_linhas = cod_linhas
+
+    def run(self):
+        get_data(self.cod_linhas)
 
 
 print("Getting first token...")
 renew_token()
 
 print("Getting cod_linhas...")
-cod_linhas = []
+all_cod_linhas = []
 with open('/data/gtfs/routes.txt', 'r') as f:
     routes = csv.reader(f)
     next(routes, None)  # ignore header
     for line in routes:
         for cod in get_cod_linha(line[0]):
-            cod_linhas.append(cod)
+            all_cod_linhas.append(cod)
 
 
-cod_linhas = set(cod_linhas)  # remove duplicate entries
-schedule.every(1).minutes.do(get_data)
+all_cod_linhas = list(set(all_cod_linhas))  # remove duplicate entries
+# Split all_cod_linhas into five groups
+# Each one will be given to a diferent thread
+chunks_of_cod_linhas = []
+for chunk in chunks(all_cod_linhas, 400):
+    chunks_of_cod_linhas.append(chunk)
 
+id = 1
 while True:
-    schedule.run_pending()
+    renew_token()
+    for chunk in chunks_of_cod_linhas:
+        myThread(chunk, id).start()
+        id += 1
 
-    print("Sleep for a second...")
-    time.sleep(1)
+    active_threads = threading.activeCount()
+    print("There are " + str(active_threads) + " threads running.")
+    # Two rogue threads must trigger a full stop to prevent service overload
+    if active_threads > (len(chunks_of_cod_linhas) + 3):
+        sys.exit("Thread limit exceeded: " + str(active_threads))
+
+    print("Sleep main thread for 60 seconds...")
+    time.sleep(60)
