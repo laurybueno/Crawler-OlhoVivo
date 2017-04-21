@@ -74,7 +74,7 @@ all_cod_linhas = list(set(all_cod_linhas))  # remove duplicate entries
 # Split all_cod_linhas into five groups
 # Each one will be given to a diferent thread
 chunks_of_cod_linhas = []
-for chunk in chunks(all_cod_linhas, 400):
+for chunk in chunks(all_cod_linhas, 100):
     chunks_of_cod_linhas.append(chunk)
 
 id = 1
@@ -90,5 +90,5 @@ while True:
     if active_threads > (len(chunks_of_cod_linhas) + 10):
         sys.exit("Thread limit of " + str(len(chunks_of_cod_linhas) + 10) + " exceeded: " + str(active_threads))
 
-    print("Sleep main thread for 120 seconds...")
-    time.sleep(120)
+    print("Sleep main thread for 60 seconds...")
+    time.sleep(60)
