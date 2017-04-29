@@ -3,6 +3,7 @@ import requests
 import csv
 import os
 import time
+import datetime
 import threading
 import sys
 
@@ -35,7 +36,12 @@ def get_posicao(cod_linha):
 def get_data(cod_linhas):
     print("Getting data on thread " + str(threading.currentThread().threadID))
     for linha in cod_linhas:
-        with open('/data/' + str(linha) + '-' + str(time.time()) + '.json', 'w') as f:
+        dir_path = '/data/' + str(datetime.date.today().year) + '/' + str(datetime.date.today().month) + '/' + str(datetime.date.today().day) + '/'
+        file_name = str(linha) + '-' + str(time.time()) + '.json'
+        complete_path = dir_path + file_name
+
+        os.makedirs(os.path.dirname(complete_path), exist_ok=True)
+        with open(complete_path, 'w') as f:
             f.write(get_posicao(linha))
     print("Finished getting data on thread " + str(threading.currentThread().threadID))
 
