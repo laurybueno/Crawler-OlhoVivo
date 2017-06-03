@@ -5,6 +5,9 @@ Requisições serão distribuídas em threads. Cada uma fica responsável por fa
 
 Em média, todas as solicitações são respondidas em menos de 15 segundos.
 
+# Execução
+O método recomendado para rodar este software é via Docker. A imagem pode ser encontrada [aqui](https://hub.docker.com/r/laury/crawler-olhovivo/).
+
 ## Notas de uso
 Coloque sua chave de acesso na variável de ambiente `API_KEY`.
 
